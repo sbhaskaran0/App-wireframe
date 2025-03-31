@@ -11,6 +11,7 @@ import SpendingCategories from './components/widgets/SpendingCategories';
 import CreditUtilization from './components/widgets/CreditUtilization';
 import Onboarding from './components/Onboarding';
 import LessonView from './components/LessonView';
+import SearchResults from './components/SearchResults';
 
 type Category = {
   title: string;
@@ -26,8 +27,10 @@ type WidgetConfig = {
 function App() {
   const [isOnboarding, setIsOnboarding] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [activeWidgets, setActiveWidgets] = useState<string[]>([]);
   const [currentLesson, setCurrentLesson] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
   const categories: Category[] = [
     {
@@ -48,9 +51,18 @@ function App() {
     },
   ];
 
-  const handleOnboardingComplete = (topics: string[]) => {
+  const handleOnboardingComplete = (topics: string[], goals: string[]) => {
     setSelectedTopics(topics);
-    setActiveWidgets([...topics, 'calculator', 'spending', 'credit']);
+    setSelectedGoals(goals);
+    
+    // Get unique widgets based on selected goals
+    const goalWidgets = goals.flatMap(goalId => {
+      const goal = (Onboarding as any).goals?.find((g: any) => g.id === goalId);
+      return goal?.relatedWidgets || [];
+    });
+
+    // Combine selected topics and goal-related widgets, removing duplicates
+    setActiveWidgets([...new Set([...topics, ...goalWidgets])]);
     setIsOnboarding(false);
   };
 
@@ -62,12 +74,20 @@ function App() {
     setCurrentLesson(moduleId);
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
   if (isOnboarding) {
     return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   if (currentLesson) {
     return <LessonView moduleId={currentLesson} onBack={() => setCurrentLesson(null)} />;
+  }
+
+  if (searchQuery) {
+    return <SearchResults query={searchQuery} onBack={() => setSearchQuery(null)} />;
   }
 
   return (
@@ -79,37 +99,48 @@ function App() {
               <Wallet className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold text-white">Remi</h1>
             </div>
-            <SearchBar />
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {categories.map((category) => (
-          <div key={category.title} className="mb-8">
-            <h2 className="mb-4 text-2xl font-bold text-white">{category.title}</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
-              {category.widgets.map((widget) => (
-                activeWidgets.includes(widget.id) && (
-                  <div
-                    key={widget.id}
-                    onClick={() => category.title === 'Learning' && handleModuleClick(widget.id)}
-                    className={`rounded-xl bg-white/5 p-6 backdrop-blur-lg transition-all duration-200 ${
-                      category.title === 'Learning' ? 'cursor-pointer hover:bg-white/10' : ''
-                    }`}
-                  >
-                    <Widget
-                      title={widget.title}
-                      onDismiss={() => handleDismiss(widget.id)}
-                    >
-                      <widget.component />
-                    </Widget>
-                  </div>
-                )
-              ))}
-            </div>
+      <main>
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mb-12 flex flex-col items-center text-center">
+            <h2 className="mb-4 text-4xl font-bold text-white">
+              Your AI Financial Assistant
+            </h2>
+            <p className="mb-8 max-w-2xl text-lg text-gray-400">
+              Ask anything about personal finance, from budgeting basics to investment strategies
+            </p>
+            <SearchBar onSearch={handleSearch} />
           </div>
-        ))}
+
+          {categories.map((category) => (
+            <div key={category.title} className="mb-8">
+              <h2 className="mb-4 text-2xl font-bold text-white">{category.title}</h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+                {category.widgets.map((widget) => (
+                  activeWidgets.includes(widget.id) && (
+                    <div
+                      key={widget.id}
+                      onClick={() => category.title === 'Learning' && handleModuleClick(widget.id)}
+                      className={`rounded-xl bg-white/5 p-6 backdrop-blur-lg transition-all duration-200 ${
+                        category.title === 'Learning' ? 'cursor-pointer hover:bg-white/10' : ''
+                      }`}
+                    >
+                      <Widget
+                        title={widget.title}
+                        onDismiss={() => handleDismiss(widget.id)}
+                      >
+                        <widget.component />
+                      </Widget>
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
 
       <Navigation />
