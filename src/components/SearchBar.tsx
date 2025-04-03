@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SUGGESTED_SEARCHES = [
   "How do I create a budget?",
@@ -14,11 +15,15 @@ const SUGGESTED_SEARCHES = [
 
 export default function SearchBar({ onSearch }: { onSearch?: (query: string) => void }) {
   const [query, setQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim() && onSearch) {
-      onSearch(query);
+    if (query.trim()) {
+      if (onSearch) {
+        onSearch(query);
+      }
+      navigate('/search', { state: { query } });
     }
   };
 
@@ -27,6 +32,7 @@ export default function SearchBar({ onSearch }: { onSearch?: (query: string) => 
     if (onSearch) {
       onSearch(suggestion);
     }
+    navigate('/search', { state: { query: suggestion } });
   };
 
   return (

@@ -1,8 +1,38 @@
 import React from 'react';
 import { BookOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+}
 
 export default function BudgetingBasics() {
+  const navigate = useNavigate();
   const progress = 60;
+
+  const lessons: Lesson[] = [
+    {
+      id: 'budget-basics',
+      title: 'Understanding Budget Fundamentals',
+      description: 'Learn the core principles of budgeting',
+      duration: '5 min'
+    },
+    {
+      id: 'income-tracking',
+      title: 'Income Tracking Strategies',
+      description: 'Master effective income tracking methods',
+      duration: '4 min'
+    },
+    {
+      id: 'expense-categories',
+      title: 'Categorizing Expenses',
+      description: 'Organize your spending effectively',
+      duration: '6 min'
+    }
+  ];
 
   return (
     <div>
@@ -21,12 +51,21 @@ export default function BudgetingBasics() {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="mt-4 space-y-2">
-          <h4 className="text-sm font-medium text-gray-300">Current Lesson</h4>
-          <p className="text-white">Creating Your First Budget</p>
-          <button className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-primary-dark">
-            Continue Learning
-          </button>
+        <div className="mt-4 space-y-4">
+          {lessons.map((lesson) => (
+            <div
+              key={lesson.id}
+              onClick={() => navigate(`/lesson/${lesson.id}`)}
+              className="cursor-pointer rounded-lg bg-secondary p-4 transition-colors hover:bg-secondary-light"
+            >
+              <h4 className="mb-1 font-medium text-white">{lesson.title}</h4>
+              <p className="mb-2 text-sm text-gray-400">{lesson.description}</p>
+              <div className="flex items-center text-sm text-gray-400">
+                <BookOpen className="mr-2 h-4 w-4" />
+                {lesson.duration}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

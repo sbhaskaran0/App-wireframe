@@ -1,8 +1,10 @@
 import React from 'react';
 import { TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Investment101() {
   const progress = 30;
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -23,8 +25,11 @@ export default function Investment101() {
         </div>
         <div className="mt-4 space-y-2">
           <h4 className="text-sm font-medium text-gray-300">Current Lesson</h4>
-          <p className="text-white">Understanding Stock Markets</p>
-          <button className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-primary-dark">
+          <p className="text-white">Understanding Compound Interest</p>
+          <button 
+            onClick={() => navigate('/lesson/compound-interest')}
+            className="mt-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-primary-dark"
+          >
             Continue Learning
           </button>
         </div>
